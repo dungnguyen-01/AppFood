@@ -1,15 +1,16 @@
-import { View, Text } from "react-native";
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import TabNavigator from './navigation/TabNavigator';
+import { Provider as ReduxProvider } from "react-redux";
+import configureStore from "./redux/store";
 
 export default function App() {
+  const store = configureStore();
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Universal React with Expo</Text>
-    </View>
+    <ReduxProvider store={store}>
+    <NavigationContainer>
+      <TabNavigator />
+    </NavigationContainer> 
+    </ReduxProvider>  
   );
 }

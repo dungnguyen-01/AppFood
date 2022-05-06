@@ -23,9 +23,9 @@ export default function HomeScreen({navigation}) {
           speed={1}
         /> 
 
-      <Divider width={1}
+      <Divider width={0}
             onAccessibilityAction
-            style={{ marginVertical: 20,marginTop:30 }}  />
+            style={{ marginVertical: 20,marginTop:20 }}  />
 
       <ScrollView >
       <TouchableOpacity
@@ -174,7 +174,7 @@ const style = StyleSheet.create({
         backgroundColor:"#1a0d00",
     },
     image: {
-       height:'40%',
+       height:'35%',
        borderRadius:20
       },
     content:{
@@ -190,7 +190,7 @@ const style = StyleSheet.create({
     iconLottie: {
         position:'absolute',
         height:80,
-        top: 130,
+        top: 115,
         left:0,
         right:0
     },

@@ -1,83 +1,178 @@
 import { View, Text, SafeAreaView,StatusBar,StyleSheet, ScrollView,TouchableOpacity} from 'react-native'
-import React from 'react'
+import React,{useState, useEffect,useRef} from 'react'
+import { UserContext } from "../useContext/UseContext";
+import { db } from "../db/firebase";
+
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function OrderDetail({navigation}) {
-  const orderList =[
-    {
-      name:"Coffee",
-      price:130.33,
-      time:"12:00 PM",
-      date:"12/12/2020",
+    const [order, setOrder] = useState([]);
 
-    },
-    {
-      name:"ShuShi",
-      price:151.33,
-      time:"8:30 AM",
-      date:"02/02/2022",
+    const [expoPushToken, setExpoPushToken] = useState('');
+    const [notification, setNotification] = useState(false);
+  
+    const notificationListener = useRef();
+    const responseListener = useRef();
+  
+  
+  const fsColllection = {
+    orders: "orders",
+  };
 
-    },
-    {
-      name:"Hanbuger",
-      price:98.23,
-      time:"7:00 PM",
-      date:"29/03/2022",
 
-    },
-    {
-      name:"Cheese Burger",
-      price:130.33,
-      time:"19:32 PM",
-      date:"15/04/2022",
+  const [user, setUser] = React.useContext(UserContext);
 
-    },
-    {
-      name:"ShuShi",
-      price:151.33,
-      time:"8:30 AM",
-      date:"02/02/2022",
+  const getData = () => {
+    db.collection(fsColllection.orders)
+      .where("userId", "==", user.userId)
+      .onSnapshot((querySnapshot) => {
+        const orders = [];
+        querySnapshot.forEach((doc) => {
+          orders.push({ id: doc.id, ...doc.data() });
+        });
+        setOrder(orders);
+        orders.map(item => {
+          if (item.status === 1 && item.show === true) {
+           setNotification(true);
+            Notifications.scheduleNotificationAsync({
+              content: {
 
-    },
-    {
-      name:"Hanbuger",
-      price:98.23,
-      time:"7:00 PM",
-      date:"29/03/2022",
+                title: 'Happy '+ item.fullname +'!',
+                body: 'Order success with code orders '+ item.orderId,
+                data: { data: 'goes here' },
+              },
+              trigger: { seconds: 2 },
+            });
+            
+            db.collection("orders").doc(item.id).update({
+              show: false
+            })
+            console.log("notification sent");
+                      
+          }
+        })
+      });
 
-    }
-    
-  ]
+  }
+
+
+
+
+
+
+  useEffect(() => {
+    getData();
+
+    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+  
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+  
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+  
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+
+
+  } ,[])
+
   return (
     <SafeAreaView style={{marginTop: StatusBar.currentHeight,flex: 1}}>  
 
      <View style={styles.txtView}>
-            <Text style={styles.txt}>Order Food List</Text>
+            <Text style={styles.txt}>Order Food List</Text>  
      </View>
      <ScrollView showsVerticalScrollIndicator={false}>
-     {orderList.map((item)=>(
-       <View style={styles.container}>
+     {order.map(item => 
+     
+      <View style={styles.container}>
+
+      <View style={{backgroundColor:'#66a3ff',borderTopLeftRadius:10,borderTopRightRadius:10}}>
+            <Text style={styles.txtStatus} 
+            >{item.status?'Success':'Pending...'}</Text>
+        </View>
+
         <View style={styles.item}>
-          <Text style={{fontWeight:'bold',fontSize:18}}>{item.name}</Text>
-          <Text>{item.time}</Text>
+          <Text style={{fontWeight:'bold',fontSize:18}}>{item.restaurantName}</Text>
+          
         </View>
         <View style={styles.item}>
           <Text style={{color:'#ff0000',fontWeight:'bold',fontSize:16}}
-          >${item.price}</Text>
+          >{item.total}</Text>
           
           <TouchableOpacity
             style={styles.button}  
-            onPress={()=>navigation.navigate('ListOrder')}        
+            key={item}
+            onPress={()=>navigation.navigate('ListOrder'
+            , {
+              id: item.id,
+              items: item.items,
+              restaurantName: item.restaurantName,
+              total: item.total,
+              status: item.status,
+              orderId: item.orderId,
+              createdAt: item.createdAt = new Date(item.createdAt.seconds * 1000).toLocaleDateString("en-US"),
+            }
+            )}        
           >
             <Text style={{color:'#1f7a1f'}}>Details...</Text>
           </TouchableOpacity>
-          <Text>{item.date}</Text>
+          <Text>{item.createdAt?new Date(item.createdAt.seconds * 1000).toLocaleDateString("en-US"):'08/05/2023'}</Text>
         </View>   
       </View>
-     ))}
+
+
+     )}
      </ScrollView>  
     </SafeAreaView>
   )
 }
+
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Constants.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+  } 
+
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  return token;
+}
+
+
 
 const styles = StyleSheet.create({
   txtView: {
@@ -118,4 +213,14 @@ const styles = StyleSheet.create({
     paddingRight:30,
     paddingTop:5,
   },
+  txtStatus:{
+    textAlign: 'center',
+    fontSize: 16,
+    padding: 2,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  txtSta:{
+    color:'#000000',
+  }
 })

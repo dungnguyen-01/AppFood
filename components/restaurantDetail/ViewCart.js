@@ -2,31 +2,34 @@ import { View, Text, TouchableOpacity,Modal,StyleSheet} from 'react-native'
 import React,{useState} from 'react'
 import { useSelector } from 'react-redux'
 import OrderItem from './OrderItem';
-import firebase from '../../firebase';
+import {firebase} from '../../db/firebase';
 import LottieView from "lottie-react-native";
-import NumberFormat from 'react-number-format';
+import {UserContext} from '../../useContext/UseContext';
+import { CheckBox } from 'react-native-elements';
+import { useDispatch } from "react-redux";
+
 
 export default function ViewCart({navigation}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-
-
+  const [user, setUser] = React.useContext(UserContext);
 
   const {items, restaurantName} = useSelector((state) => state.cartReducer.selectedItems); 
   const total = items
   .map((item) => item.review_count).reduce((prev, curr) => prev + curr, 0);
 
-  // const totalUSD = total.toLocaleString("en", {
-  //   style: "currency",
-  //   currency: "USD",
-  // });
- 
-
  const totalUSD = "$" + total.toFixed(2);
-
-// console.log("total: "+total);
-//   const totalUSD = "$" + total.toFixed(2);
   console.log(totalUSD);
+
+  const dispatch = useDispatch();
+
+  // clear cart
+  const clearCart = () => {
+    dispatch({type: "CLEAR_CART"});
+  }
+
+  var orderId = "fd"+Math.floor(1000 + Math.random() * 9000);
+  
 
   const addOrderToFireBase = () => {
     setLoading(true);
@@ -36,11 +39,20 @@ export default function ViewCart({navigation}) {
         items: items,
         restaurantName: restaurantName,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        total: totalUSD,
+        token: user.token,
+        userId: user.userId,
+        status: 0,
+        show: true,
+        orderId: orderId,
+        fullname: user.username,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       })
       .then(() => {
         setTimeout(() => {
           setLoading(false);          
-          navigation.navigate("OrderCompleted");
+          navigation.navigate("OrderCompleted",
+          clearCart());    
         }, 2500);
       });
   };
@@ -72,6 +84,7 @@ export default function ViewCart({navigation}) {
                     onPress={() => {
                       addOrderToFireBase();
                       setModalVisible(false);
+                                              
                     }}
                   >
                     <Text style={{ color: "white", fontSize: 20 }}>Checkout</Text>
@@ -157,7 +170,7 @@ export default function ViewCart({navigation}) {
           }}
         >
           <LottieView
-            style={{ height: 200 }}
+           style={{ height: 220, alignSelf: "center", marginTop: -20 }}
             source={require("../../assets/animations/scanner.json")}
             autoPlay
             speed={3}

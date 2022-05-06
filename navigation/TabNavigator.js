@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { StackNavigatorAccount,StackNavigatorOrderFoods, StackNavigatorHome, StackNavigatorOrderDetail } from './StackNavigator';
+import {StackNavigatorOrderFoods, StackNavigatorHome, StackNavigatorOrderDetail } from './StackNavigator';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Tab = createBottomTabNavigator();
@@ -10,7 +10,7 @@ export default function TabNavigation() {
     headerShown: false,
   };
   return (
-    <Tab.Navigator  screenOptions={screenOptions}>
+    <Tab.Navigator initialRouteName='Home'  screenOptions={screenOptions}>
         <Tab.Screen name="Home" component={StackNavigatorHome} 
           options={{
           tabBarLabel: 'Home',
@@ -34,15 +34,6 @@ export default function TabNavigation() {
           tabBarLabel: 'Order',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="receipt" color={color} size={size} />
-          ),
-        }}
-         />
-
-        <Tab.Screen name="SingIn" component={StackNavigatorAccount}
-         options={{
-          tabBarLabel: 'Account',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" color={color} size={size} />
           ),
         }}
          />

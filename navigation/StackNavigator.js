@@ -1,8 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
-import SingIn from '../components/Account/SingIn';
-import Register from '../components/Account/Register';
+
 import ListOrder from '../components/OrderDetail/ListOrder';
 import Home from '../screens/Home';
 import OrderDetail from '../screens/OrderDetail';
@@ -43,13 +42,8 @@ const StackNavigatorOrderFoods =()=> {
       </Stack.Navigator>
     )
   }
-  const StackNavigatorAccount =()=> {
-  return (
-    <Stack.Navigator initialRouteName="SingIn"  screenOptions={screenOptions}>
-            <Stack.Screen name="SingIn" component={SingIn} />
-            <Stack.Screen name="Register" component={Register} />
-    </Stack.Navigator>
-  )
-}
+ 
+ 
 
-export {StackNavigatorHome,StackNavigatorOrderDetail,StackNavigatorAccount,StackNavigatorOrderFoods};
+
+export {StackNavigatorHome,StackNavigatorOrderDetail,StackNavigatorOrderFoods};

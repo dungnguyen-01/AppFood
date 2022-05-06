@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, SafeAreaView, ScrollView,StatusBar } from "react-native";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
-import firebase from "../firebase";
+import {firebase} from '../db/firebase';
 import MenuItems from "../components/restaurantDetail/MenuItems";
 
 export default function OrderCompleted() {
@@ -67,7 +67,7 @@ export default function OrderCompleted() {
           loop={false}
         />
         <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-          Your order at {restaurantName} has been placed for {totalUSD}
+        Congratulations, you have successfully placed your order, your order is being processed.
         </Text>
         <ScrollView>
           <MenuItems

@@ -3,7 +3,20 @@ import React from 'react';
 import { Divider } from "react-native-elements";
 import LottieView from "lottie-react-native";
 
-export default function OrderDetail({navigation}) {
+
+export default function OrderDetail({route,navigation}) {
+
+  const {restaurantName} = route.params;
+  const {total} = route.params;
+  const {createdAt} = route.params;
+  const {items} = route.params;
+  const {status} = route.params;
+  const {orderId} = route.params;
+
+
+
+
+
   return (
     <SafeAreaView style={{marginTop: StatusBar.currentHeight,flex: 1, backgroundColor:"#e6ffff"}}>  
     <View style={{position:'absolute',right:0,left:0,top:-30}}>
@@ -14,33 +27,35 @@ export default function OrderDetail({navigation}) {
           speed={1}
         /> 
     </View>
-  
     <View  style={styles.container}>
     <View style={{flexDirection:'row',justifyContent:'space-between',margin:10,marginTop:50}}>
       <Text style={{fontSize:18,fontWeight:'bold',color:'#0066cc'}}>Order Details</Text>
-      <Text style={{fontSize:18,fontWeight:'bold',color:'#0066cc'}}>ID: PX2351</Text>
+      <Text style={{fontSize:18,fontWeight:'bold',color:'#0066cc'}}>ID: {orderId}</Text>
     </View>
       
       <Divider width={1.8}
             onAccessibilityAction
             style={{ marginVertical: 20 }}  />
+            { items.map(item => 
       <View style={{flexDirection:'row',justifyContent:'space-between',margin:10,marginBottom:10,marginTop:20}}>
            <View>
-             <Text style={{paddingBottom:15,fontSize:15,fontWeight:'600'}}>Chicken Hot</Text>
-             <Text style={{paddingBottom:15,fontSize:15,fontWeight:'600'}}>Shisi Japan</Text>
-             <Text style={{paddingBottom:15,fontSize:15,fontWeight:'600'}}>HotDog American</Text>
+             <Text style={{paddingBottom:15,fontSize:15,fontWeight:'600'}}>{item.name}</Text>
            </View>
            <View>
-             <Text style={{paddingBottom:15,fontSize:15,fontWeight:'700'}}>$126.45</Text>
-             <Text style={{paddingBottom:15,fontSize:15,fontWeight:'700'}}>$126.45</Text>
-             <Text style={{paddingBottom:15,fontSize:15,fontWeight:'700'}}>$126.45</Text>
+             <Text style={{paddingBottom:15,fontSize:15,fontWeight:'700'}}>${item.review_count}</Text>
            </View>      
       </View>
+            )}
       <Divider width={1.8} onAccessibilityAction style={{ marginVertical: 20 }}  />  
 
       <View style={{flexDirection:'row',justifyContent:'space-between',padding:10}}>
        <Text style={{fontSize:18,fontWeight:'bold',color:'#ff0000'}}>Total to pay</Text>
-       <Text style={{fontSize:18,fontWeight:'bold',color:'#ff0000'}}>$372.45</Text>   
+       <Text style={{fontSize:18,fontWeight:'bold',color:'#ff0000'}}>{total}</Text>   
+      </View>
+
+      <View style={{flexDirection:'row',justifyContent:'space-between',paddingLeft:40,paddingRight:40}}>
+       <Text style={{fontSize:15,fontWeight:'bold',color:'#4d94ff'}}>Status</Text>
+       <Text style={{fontSize:15,fontWeight:'bold',color:'#4d94ff'}}>{status?'Success':'Pending...'}</Text>   
       </View>
 
        <Divider width={1.8} onAccessibilityAction style={{ marginVertical: 20 }}  /> 
@@ -53,8 +68,8 @@ export default function OrderDetail({navigation}) {
            </View>
            <View>
              <Text style={{paddingBottom:15,fontSize:15}}>7:35 PM</Text>
-             <Text style={{paddingBottom:15,fontSize:15}}>25-10-2022</Text>
-             <Text style={{paddingBottom:15,fontSize:15}}>Chicago</Text>
+             <Text style={{paddingBottom:15,fontSize:15}}>{createdAt}</Text>
+             <Text style={{paddingBottom:15,fontSize:15}}>{restaurantName}</Text>
            </View>      
       </View>
       <TouchableOpacity style={{

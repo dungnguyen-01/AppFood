@@ -28,6 +28,11 @@ let defaultState = {
         console.log(newState, "👉");
         return newState;
       }
+      case "CLEAR_CART": {
+        let newState = { ...state };
+        newState.selectedItems = { items: [], restaurantName: "" };
+        return newState;
+      }
   
       default:
         return state;
